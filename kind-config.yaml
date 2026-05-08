@@ -1,0 +1,11 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 31000   # nodePort from your service
+    hostPort: 8080         # port you want on localhost
+    protocol: TCP
+  - containerPort: 31001   # nodePort from your service
+    hostPort: 8081         # port you want on localhost
+    protocol: TCP
