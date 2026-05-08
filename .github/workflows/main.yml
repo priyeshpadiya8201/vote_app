@@ -59,6 +59,12 @@ jobs:
           yamllint -d "{extends: default, rules: {line-length: {max: 150}, truthy: disable}}" \
             k8s-specifications/vote-deployment.yaml \
             k8s-specifications/vote-service.yaml
+
+      - name: Validate Kubernetes Schema with Kubeconform
+        uses: yannh/kubeconform-action@v1
+        with:
+          kubernetes-version: '1.29.0'
+          kubernetes-manifests: 'k8s-specifications/'
   # ─────────────────────────────────────────
   # JOB 3 — Build and push Docker image
   # ─────────────────────────────────────────
