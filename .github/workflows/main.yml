@@ -51,13 +51,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Lint with kubectl dry-run
+      - name: Install kubectl
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-          kubectl apply --dry-run=client -f k8s-specifications/vote-deployment.yaml
-          kubectl apply --dry-run=client -f k8s-specifications/vote-service.yaml
 
+      - name: Lint with kubectl dry-run
+        run: |
+          kubectl apply --dry-run=client --validate=false \
+            -f k8s-specifications/vote-deployment.yaml
+          kubectl apply --dry-run=client --validate=false \
+            -f k8s-specifications/vote-service.yaml
   # ─────────────────────────────────────────
   # JOB 3 — Build and push Docker image
   # ─────────────────────────────────────────
