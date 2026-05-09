@@ -134,7 +134,7 @@ jobs:
       - name: Run smoke test — check vote returns 200 OK
         run: |
           # Port-forward in background
-          kubectl port-forward svc/vote 5000:80 &
+          kubectl port-forward svc/vote 5000:8080 &
           PF_PID=$!
           sleep 5
 
