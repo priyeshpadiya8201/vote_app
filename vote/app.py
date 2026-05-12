@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, make_response, g
+# from flask import Flask, render_template, request, make_response, g
 from redis import Redis
 import os
 import socket
@@ -16,13 +16,15 @@ gunicorn_error_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers.extend(gunicorn_error_logger.handlers)
 app.logger.setLevel(logging.INFO)
 
-def get_redis():
+
+def get_redis():                          # ← 2 blank lines before (was 1)
     if not hasattr(g, 'redis'):
         g.redis = Redis(host="redis", db=0, socket_timeout=5)
     return g.redis
 
-@app.route("/", methods=['POST','GET'])
-def hello():
+
+@app.route("/", methods=['POST', 'GET'])  # ← space after ',' (was 'POST','GET')
+def hello():                              # ← 2 blank lines before (was 1)
     voter_id = request.cookies.get('voter_id')
     if not voter_id:
         voter_id = hex(random.getrandbits(64))[2:-1]
