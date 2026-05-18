@@ -1,67 +1,76 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: db
-  labels:
-    app: db
+  name: postgres
 spec:
-  serviceName: db
+  serviceName: postgres  # Headless service for stable DNS
   replicas: 1
   selector:
     matchLabels:
-      app: db
+      app: postgres
   template:
     metadata:
       labels:
-        app: db
+        app: postgres
     spec:
       containers:
       - name: postgres
         image: postgres:15-alpine
-        env:
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: POSTGRES_USER
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: POSTGRES_PASSWORD
         ports:
         - containerPort: 5432
-          name: postgres
-        volumeMounts:
-        - name: db-data
-          mountPath: /var/lib/postgresql/data
+        
         resources:
           requests:
-            cpu: "100m"
-            memory: "128Mi"
+            cpu: 200m
+            memory: 512Mi
           limits:
-            cpu: "500m"
-            memory: "512Mi"
-        livenessProbe:
-          exec:
-            command: ["pg_isready", "-U", "postgres"]
-          initialDelaySeconds: 30
-          periodSeconds: 15
-          timeoutSeconds: 5
-          failureThreshold: 3
+            cpu: 1000m
+            memory: 1Gi
+        
         readinessProbe:
           exec:
             command: ["pg_isready", "-U", "postgres"]
           initialDelaySeconds: 10
           periodSeconds: 10
-          timeoutSeconds: 5
           failureThreshold: 3
+        
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", "postgres"]
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          failureThreshold: 3
+        
+        env:
+        - name: POSTGRES_USER #username
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_USER
+
+        - name: POSTGRES_PASSWORD #password
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_PASSWORD
+
+        - name: POSTGRES_DB #database name
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_DB  
+        
+        
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+          subPath: postgres
+  
   volumeClaimTemplates:
   - metadata:
-      name: db-data
+      name: postgres-storage
     spec:
-      accessModes:
-        - ReadWriteOnce
+      accessModes: ["ReadWriteOnce"]
       resources:
         requests:
-          storage: 1Gi
+          storage: 5Gi
